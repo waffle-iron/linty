@@ -89,5 +89,8 @@ ENV/
 .ropeproject
 
 .idea
+tmp
+
+db.sqlite3
 
 # Created by .ignore support plugin (hsz.mobi)

@@ -1,3 +1,5 @@
+import json
+
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 
@@ -21,9 +23,11 @@ class ResultTests(TestCase):
 
 class WebhookTests(TestCase):
     def setUp(self):
-        self.data = {}
+        # TODO: Write dummy webhook
+        self.data = json.dumps({'test': 'test'})
 
     def test_post_webhook_204(self):
+        # TODO: use vcr for requests
         url = reverse('webhook')
-        response = self.client.post(url, data=self.data)
+        response = self.client.post(url, data=self.data, content_type='application/json')
         self.assertEqual(response.status_code, 204)

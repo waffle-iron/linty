@@ -20,11 +20,14 @@ class ResultDetailView(DetailView):
 
 @csrf_exempt
 def WebhookView(request):
-    body = json.loads(request.body)
+    try:
+        body = json.loads(request.body)
+    except ValueError:
+        return HttpResponse('Invalid JSON body.', status=400)
 
     # TODO: get credentials from User
-    username = 'birkholz'
-    password = '************'
+    username = os.environ.get('GITHUB_USERNAME')
+    password = os.environ.get('GITHUB_TOKEN')
     auth = (username, password)
 
     # get necessary vars

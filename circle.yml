@@ -1,0 +1,16 @@
+machine:
+  services:
+    - postgresql
+  environment:
+    DATABASE_URL: postgres://ubuntu:@127.0.0.1:5432/circle_test
+    COVERALLS_REPO_TOKEN: LRFl5giFi9FvH02VYdzNL5aa3rc9eLfdd
+    DEBUG_MODE: TRUE
+dependencies:
+  post:
+    - pip install coverage==4.1
+    - pip install coveralls==1.1
+test:
+  override:
+    - coverage run --source=. manage.py test
+  post:
+    - coveralls

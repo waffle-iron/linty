@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from django.views.generic import DetailView
 
-# Create your views here.
+from interface.models import Result
+
+
+class ResultDetailView(DetailView):
+    model = Result
+
+

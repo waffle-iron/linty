@@ -4,9 +4,15 @@ from django.db import models
 
 class Repo(models.Model):
     user = models.ForeignKey(User, related_name='repos')
-    owner = models.TextField()
-    name = models.TextField()
-    webhook_url = models.URLField(null=True, blank=True)
+    full_name = models.TextField()
+    webhook_id = models.TextField()
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def delete(self, using=None, keep_parents=False):
+
+
+        super(Repo, self).delete(using=using, keep_parents=keep_parents)
 
 
 class Build(models.Model):
@@ -26,7 +32,7 @@ class Build(models.Model):
     ref = models.TextField()
     sha = models.TextField()
     status = models.TextField(choices=STATUS_CHOICES, default=PENDING)
-    result = models.TextField()
+    result = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)
 

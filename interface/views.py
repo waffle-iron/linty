@@ -1,20 +1,21 @@
 import json
 import os
-
+import shutil
 import subprocess
 
-import shutil
-
 import requests
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
+from django.shortcuts import redirect
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView
-from github import Github
 from social.apps.django_app.default.models import UserSocialAuth
 
-from interface.models import Build
+from interface.models import Build, Repo
+from interface.utils import get_github
 
 
 class BuildDetailView(DetailView):
@@ -26,18 +27,31 @@ class RegisterRepoView(ListView, LoginRequiredMixin):
 
     def get_queryset(self):
         # Get list of user repos
-        user = self.request.user
-        try:
-            data = UserSocialAuth.objects.filter(user=user).values_list('extra_data')[0][0]
-        except:
-            raise Exception('Fail')
-
-        username = data['login']
-        password = data['access_token']
-
-        g = Github(username, password)
-
+        g = get_github(self.request.user)
         return g.get_user().get_repos()
+
+
+@login_required
+def ProcessRepo(request, full_name):
+    user = request.user
+    g = get_github(user)
+
+    grepo = g.get_repo(full_name)
+
+    hook = grepo.create_hook(
+        'web',
+        {
+            'content_type': 'json',
+            'url': request.build_absolute_uri(reverse('webhook'))
+        },
+        events=['push'],
+        active=True
+    )
+
+    repo = Repo.objects.create(full_name=grepo.full_name, user=user, webhook_id=hook.id)
+
+    url = reverse('repo_detail', kwargs={'pk': repo.id})
+    return redirect(url)
 
 
 @csrf_exempt
@@ -47,9 +61,18 @@ def WebhookView(request):
     except ValueError:
         return HttpResponse('Invalid JSON body.', status=400)
 
-    # TODO: get credentials from User
-    username = os.environ.get('GITHUB_USERNAME')
-    password = os.environ.get('GITHUB_TOKEN')
+    try:
+        repo = Repo.objects.get(full_name=body['repository']['full_name'])
+    except Repo.DoesNotExist:
+        return HttpResponse(status=204)
+
+    try:
+        data = UserSocialAuth.objects.filter(user=repo.user).values_list('extra_data')[0][0]
+    except:
+        raise Exception('Fail')
+
+    username = data['login']
+    password = data['access_token']
     auth = (username, password)
 
     # get necessary vars
@@ -60,6 +83,13 @@ def WebhookView(request):
     combo_name = '/'.join([repo_name, branch])
     sha = body['head_commit']['id']
     status_url = body['repository']['statuses_url'].replace('{sha}', sha)
+
+    build = Build.objects.create(
+        repo=repo,
+        ref=branch,
+        sha=sha,
+        status=Build.PENDING
+    )
 
     def publish_status(state, description, target_url=None):
         data = {
@@ -91,13 +121,20 @@ def WebhookView(request):
         output = e.output
 
     if not output:
-        publish_status('success', 'Your code conforms to pep8.')
+        status = 'success'
+        publish_status(status, 'Your code conforms to pep8.')
     else:
+        status = 'error'
         output = output.replace(directory, '')
-        # save record
-        result = Result.objects.create(text=output)
-        path = reverse('result_detail', kwargs={'pk': result.id})
-        url = request.build_absolute_uri(path)
-        publish_status('error', 'Your code has pep8 violations.', target_url=url)
+
+    # save record
+    build.status = status
+    build.result = output
+    build.finished_at = timezone.now()
+    build.save()
+
+    path = reverse('build_detail', kwargs={'pk': build.id})
+    url = request.build_absolute_uri(path)
+    publish_status('error', 'Your code has pep8 violations.', target_url=url)
 
     return HttpResponse(status=204)

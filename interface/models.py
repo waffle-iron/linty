@@ -1,16 +1,20 @@
 from django.contrib.auth.models import User
 from django.db import models
 
+from interface.utils import get_github
+
 
 class Repo(models.Model):
     user = models.ForeignKey(User, related_name='repos')
     full_name = models.TextField()
-    webhook_id = models.TextField()
+    webhook_id = models.IntegerField()
 
     created_at = models.DateTimeField(auto_now_add=True)
 
     def delete(self, using=None, keep_parents=False):
-
+        g = get_github(self.user)
+        hook = g.get_repo(self.full_name).get_hook(self.webhook_id)
+        hook.delete()
 
         super(Repo, self).delete(using=using, keep_parents=keep_parents)
 

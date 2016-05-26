@@ -47,15 +47,15 @@ class RepoDeleteView(generic.DeleteView, LoginRequiredMixin):
     success_url = reverse_lazy('repo_list')
     model = Repo
 
-    def get_object(self, queryset=None):
-        obj = super(RepoDeleteView, self).get_object(queryset=queryset)
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+
         if obj.user != self.request.user:
             return HttpResponse(status=403)
-        obj.delete()
-        return redirect(reverse('repo_list'))
 
-    def get(self, request, *args, **kwargs):
-        return super(RepoDeleteView, self).delete(request, *args, **kwargs)
+        obj.delete()
+
+        return redirect(reverse('repo_list'))
 
 
 @login_required

@@ -133,7 +133,7 @@ SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
 
 SOCIAL_AUTH_GITHUB_KEY = os.environ.get('SOCIAL_AUTH_GITHUB_KEY', '')
 SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('SOCIAL_AUTH_GITHUB_SECRET', '')
-SOCIAL_AUTH_GITHUB_SCOPE = ['user:email', 'repo', 'admin:repo_hook']
+SOCIAL_AUTH_GITHUB_SCOPE = ['user:email', 'repo']
 
 # Production
 SECURE_CONTENT_TYPE_NOSNIFF = True

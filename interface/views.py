@@ -43,7 +43,6 @@ class RepoListView(generic.ListView, LoginRequiredMixin):
         return super(RepoListView, self).get_context_data(**kwargs)
 
 
-
 class RepoDeleteView(generic.DeleteView, LoginRequiredMixin):
     def get_object(self, queryset=None):
         obj = super(RepoDeleteView, self).get_object(queryset=queryset)

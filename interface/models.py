@@ -39,4 +39,3 @@ class Build(models.Model):
     result = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)
-

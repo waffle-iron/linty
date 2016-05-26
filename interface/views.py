@@ -11,24 +11,45 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView, ListView
+from django.views import generic
 from social.apps.django_app.default.models import UserSocialAuth
 
 from interface.models import Build, Repo
 from interface.utils import get_github
 
 
-class BuildDetailView(DetailView):
+class BuildDetailView(generic.DetailView):
     model = Build
 
 
-class RegisterRepoView(ListView, LoginRequiredMixin):
-    template_name = 'interface/register_repo.html'
+class RepoListView(generic.ListView, LoginRequiredMixin):
+    template_name = 'interface/repo_list.html'
 
     def get_queryset(self):
+        return Repo.objects.filter(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        queryset = kwargs.pop('object_list', self.object_list)
+        names = [x[0] for x in queryset.values_list('full_name')]
         # Get list of user repos
         g = get_github(self.request.user)
-        return g.get_user().get_repos()
+        repos = [r for r in g.get_user().get_repos()]
+        filtered = []
+        for repo in repos:
+            if repo.full_name not in names:
+                filtered.append(repo)
+
+        kwargs['repos'] = filtered
+        return super(RepoListView, self).get_context_data(**kwargs)
+
+
+class RepoDeleteView(generic.DeleteView, LoginRequiredMixin):
+    def get_object(self, queryset=None):
+        obj = super(RepoDeleteView, self).get_object(queryset=queryset)
+        if obj.user != self.request.user:
+            return HttpResponse(status=403)
+        obj.delete()
+        return redirect(reverse('repo_list'))
 
 
 @login_required
@@ -50,8 +71,7 @@ def ProcessRepo(request, full_name):
 
     repo = Repo.objects.create(full_name=grepo.full_name, user=user, webhook_id=hook.id)
 
-    url = reverse('repo_detail', kwargs={'pk': repo.id})
-    return redirect(url)
+    return redirect(reverse('repo_list'))
 
 
 @csrf_exempt

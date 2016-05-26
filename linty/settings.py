@@ -147,7 +147,6 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SESSION_COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN', HOSTNAME)
 
-
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': True,

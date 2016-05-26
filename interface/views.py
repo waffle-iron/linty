@@ -6,16 +6,38 @@ import subprocess
 import shutil
 
 import requests
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
+from github import Github
+from social.apps.django_app.default.models import UserSocialAuth
 
 from interface.models import Build
 
 
 class BuildDetailView(DetailView):
     model = Build
+
+
+class RegisterRepoView(ListView, LoginRequiredMixin):
+    template_name = 'interface/register_repo.html'
+
+    def get_queryset(self):
+        # Get list of user repos
+        user = self.request.user
+        try:
+            data = UserSocialAuth.objects.filter(user=user).values_list('extra_data')[0][0]
+        except:
+            raise Exception('Fail')
+
+        username = data['login']
+        password = data['access_token']
+
+        g = Github(username, password)
+
+        return g.get_user().get_repos()
 
 
 @csrf_exempt

@@ -22,8 +22,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
-DEBUG = os.environ.get('DEBUG', 'TRUE') == "TRUE"
+SECRET_KEY = os.environ.get('SECRET_KEY', 'Thisisaterriblesecret22sdadlsdajdlsdalda')
+DEBUG = os.environ.get('DEBUG', "TRUE") == "TRUE"
 
 HOSTNAME = os.environ.get('HOSTNAME', 'localhost')
 ALLOWED_HOSTS = ['linty.herokuapp.com']
@@ -136,12 +136,13 @@ SOCIAL_AUTH_GITHUB_SECRET = os.environ.get('SOCIAL_AUTH_GITHUB_SECRET', '')
 SOCIAL_AUTH_GITHUB_SCOPE = ['user:email', 'repo']
 
 # Production
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_HTTPONLY = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_HSTS_SECONDS = 31536000
-SESSION_COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN', HOSTNAME)
+if not DEBUG:
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_HTTPONLY = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_HSTS_SECONDS = 31536000
+    SESSION_COOKIE_DOMAIN = os.environ.get('COOKIE_DOMAIN', HOSTNAME)

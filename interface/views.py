@@ -6,7 +6,7 @@ import subprocess
 import requests
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils import timezone
@@ -44,6 +44,8 @@ class RepoListView(generic.ListView, LoginRequiredMixin):
 
 
 class RepoDeleteView(generic.DeleteView, LoginRequiredMixin):
+    success_url = reverse_lazy('repo_list')
+
     def get_object(self, queryset=None):
         obj = super(RepoDeleteView, self).get_object(queryset=queryset)
         if obj.user != self.request.user:

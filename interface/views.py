@@ -44,7 +44,7 @@ def WebhookView(request):
             'state': state,
             'description': description,
             'target_url': target_url,
-            'context': 'pepsi'
+            'context': 'linty'
         }
         requests.post(status_url, json=data, auth=auth)
 

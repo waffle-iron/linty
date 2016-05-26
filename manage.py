@@ -9,7 +9,7 @@ if __name__ == "__main__":
     except:
         pass
 
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "pepsi.settings")
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "linty.settings")
 
     from django.core.management import execute_from_command_line
 

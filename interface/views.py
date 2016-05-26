@@ -54,6 +54,9 @@ class RepoDeleteView(generic.DeleteView, LoginRequiredMixin):
         obj.delete()
         return redirect(reverse('repo_list'))
 
+    def get(self, request, *args, **kwargs):
+        return super(RepoDeleteView, self).delete(request, *args, **kwargs)
+
 
 @login_required
 def ProcessRepo(request, full_name):

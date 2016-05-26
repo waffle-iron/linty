@@ -36,6 +36,6 @@ class Build(models.Model):
     ref = models.TextField()
     sha = models.TextField()
     status = models.TextField(choices=STATUS_CHOICES, default=PENDING)
-    result = models.TextField(blank=True)
+    result = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)

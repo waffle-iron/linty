@@ -45,6 +45,7 @@ class RepoListView(generic.ListView, LoginRequiredMixin):
 
 class RepoDeleteView(generic.DeleteView, LoginRequiredMixin):
     success_url = reverse_lazy('repo_list')
+    model = Repo
 
     def get_object(self, queryset=None):
         obj = super(RepoDeleteView, self).get_object(queryset=queryset)

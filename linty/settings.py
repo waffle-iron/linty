@@ -21,12 +21,11 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'secret')
+DEBUG = os.environ.get('DEBUG', 'TRUE') == "TRUE"
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', 'True'))
-
+HOSTNAME = os.environ.get('HOSTNAME', 'localhost')
 ALLOWED_HOSTS = ['linty.herokuapp.com']
 
 
@@ -69,12 +68,11 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
         },
+        'CONTEXT_PROCESSORS': [
+            'social.apps.django_app.context_processors.backends',
+            'social.apps.django_app.context_processors.login_redirect'
+        ]
     },
-]
-
-TEMPLATE_CONTEXT_PROCESSORS = [
-    'social.apps.django_app.context_processors.backends',
-    'social.apps.django_app.context_processors.login_redirect',
 ]
 
 WSGI_APPLICATION = 'linty.wsgi.application'
@@ -132,3 +130,13 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 SOCIAL_AUTH_ADMIN_USER_SEARCH_FIELDS = ['username', 'first_name', 'email']
+
+
+# Production
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
+X_FRAME_OPTIONS = 'DENY'

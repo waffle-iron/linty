@@ -87,6 +87,9 @@ def WebhookView(request):
     except ValueError:
         return HttpResponse('Invalid JSON body.', status=400)
 
+    if 'ref' not in body:
+        return HttpResponse(status=204)
+
     try:
         repo = Repo.objects.get(full_name=body['repository']['full_name'])
     except Repo.DoesNotExist:

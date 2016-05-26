@@ -6,3 +6,4 @@ psycopg2==2.6.1
 python-social-auth==0.2.19
 gunicorn==19.6.0
 whitenoise==3.1
+pygithub==1.26.0

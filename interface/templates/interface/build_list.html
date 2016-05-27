@@ -1,0 +1,15 @@
+{% load humanize %}
+
+<ul>
+    {% for build in object_list %}
+        <li>
+            {% if build.status == 'error' %}
+            <a href="{% url 'build_detail' pk=build.pk %}">
+                {{ build.sha|slice:":6" }}: {{ build.ref }} - {{ build.status }} - {{ build.created_at|naturaltime }}
+            </a>
+            {% else %}
+                {{ build.sha|slice:":6" }}: {{ build.ref }} - {{ build.status }} - {{ build.created_at|naturaltime }}
+            {% endif %}
+        </li>
+    {% endfor %}
+</ul>

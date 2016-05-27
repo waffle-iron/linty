@@ -18,8 +18,27 @@ from interface.models import Build, Repo
 from interface.utils import get_github
 
 
-class BuildDetailView(generic.DetailView):
+class BuildDetailView(generic.DetailView, LoginRequiredMixin):
     model = Build
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object()
+
+        if obj.repo.user != self.request.user:
+            return HttpResponse(status=403)
+
+        return super(BuildDetailView, self).get(request, *args, **kwargs)
+
+
+class BuildListView(generic.ListView, LoginRequiredMixin):
+    model = Build
+
+    def get_queryset(self):
+        pk = self.kwargs.get('pk')
+        return Build.objects.filter(
+            repo__pk=pk,
+            repo__user=self.request.user
+        )
 
 
 class RepoListView(generic.ListView, LoginRequiredMixin):

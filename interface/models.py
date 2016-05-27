@@ -18,6 +18,9 @@ class Repo(models.Model):
 
         super(Repo, self).delete(using=using, keep_parents=keep_parents)
 
+    class Meta:
+        ordering = ['full_name']
+
 
 class Build(models.Model):
     SUCCESS = 'success'
@@ -39,3 +42,12 @@ class Build(models.Model):
     result = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)
+
+    def get_duration(self):
+        delta = self.finished_at - self.created_at
+        s = delta.seconds
+        minutes, seconds = divmod(s, 60)
+        return '%sm:%ss' % (minutes, seconds)
+
+    class Meta:
+        ordering = ['-created_at']
